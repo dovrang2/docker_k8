@@ -1,0 +1,34 @@
+# spot-cluster.yaml
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eks
+  region: us-east-2
+  version: "1.25"
+
+
+managedNodeGroups:
+- name: spot
+  instanceTypes: ["t3.small", "t2.small"]
+  spot: true
+  labels:
+      lifecycle: Ec2Spot
+      aws.amazon.com/spot: "true"
+  tags:
+    k8s.io/cluster-autoscaler/node-template/label/lifecycle: Ec2Spot
+    k8s.io/cluster-autoscaler/node-template/label/aws.amazon.com/spot: "true"
+    k8s.io/cluster-autoscaler/enabled: "true"
+    k8s.io/cluster-autoscaler/eks: "owned"
+  iam:
+      withAddonPolicies:
+        autoScaler: true
+  ssh:
+      allow: true # will use ~/.ssh/id_rsa.pub as the default ssh key
+  desiredCapacity: 2
+  minSize: 2
+  maxSize: 3
+  volumeSize: 15
+  volumeType: gp2
+
